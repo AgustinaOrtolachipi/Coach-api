@@ -1,4 +1,4 @@
-import { IsString, IsNumber } from 'class-validator';
+import { IsString, IsNumber, Min } from 'class-validator';
 
 export class CreateSessionDto {
   @IsString()
@@ -14,5 +14,6 @@ export class CreateSessionDto {
   duration: number;
 
   @IsNumber()
+  @Min(1, { message: 'El precio debe ser un número positivo' })
   price: number;
 }

@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { Session } from './entities/session.entity';
 import { CreateSessionDto } from './dto/create-session.dto';
 import { UpdateSessionDto } from './dto/update-session.dto';
@@ -25,6 +25,9 @@ export class SessionsService {
   }
 
   create(createSessionDto: CreateSessionDto): Session {
+    if (createSessionDto.price <= 0) {
+      throw new BadRequestException('El precio debe ser un número positivo');
+    }
     const newSession: Session = {
       id: this.idCounter++,
       ...createSessionDto,
@@ -41,12 +44,15 @@ export class SessionsService {
   findOne(id: number): Session {
     const session = this.sessions.find(session => session.id === id);
     if (!session) {
-      throw new NotFoundException(`Session with ID ${id} not found`);
+      throw new NotFoundException(`Sesión con ID ${id} no encontrada`);
     }
     return session;
   }
 
   update(id: number, updateSessionDto: UpdateSessionDto): Session {
+    if (updateSessionDto.price && updateSessionDto.price <= 0) {
+      throw new BadRequestException('El precio debe ser un número positivo');
+    }
     const session = this.findOne(id);
     Object.assign(session, updateSessionDto);
     this.saveSessions();
@@ -56,7 +62,7 @@ export class SessionsService {
   remove(id: number): void {
     const index = this.sessions.findIndex(session => session.id === id);
     if (index === -1) {
-      throw new NotFoundException(`Session with ID ${id} not found`);
+      throw new NotFoundException(`Sesión con ID ${id} no encontrada`);
     }
     this.sessions.splice(index, 1);
     this.saveSessions();
